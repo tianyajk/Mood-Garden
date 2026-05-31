@@ -14,39 +14,47 @@ body,
 
 body {
   margin: 0;
-  background-color: theme('colors.bg.base');
-  color: theme('colors.ink.900');
-  font-family: theme('fontFamily.body');
-  letter-spacing: 0.02em;
+  background-color: #F5F0E8;
+  color: #3C3428;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', sans-serif;
+  letter-spacing: 0.03em;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-/* 毛玻璃材质（视觉设计 6.4），抽成工具类供 ui/Card 的 glass 变体复用 */
-@layer components {
-  .glass {
-    background: rgba(255, 255, 255, 0.18);
-    backdrop-filter: blur(16px) saturate(120%);
-    -webkit-backdrop-filter: blur(16px) saturate(120%);
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    box-shadow: theme('boxShadow.md');
-  }
-
-  .glass-dark {
-    background: rgba(30, 34, 55, 0.35);
-    backdrop-filter: blur(16px) saturate(120%);
-    -webkit-backdrop-filter: blur(16px) saturate(120%);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    box-shadow: theme('boxShadow.md');
-  }
+/* 纸纹理 overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
 }
 
-/* 标题用衬线增强叙事感（视觉设计 二） */
+/* 标题用衬线 */
 .font-display {
   letter-spacing: -0.01em;
 }
 
-/* 尊重系统「减少动态」（视觉设计 5.3，Phase3 进阶，这里先建立基线） */
+/* 卡片纸质感 */
+@layer components {
+  .paper-card {
+    background: #FFFDF7;
+    border: 1px solid #E8E0D5;
+    box-shadow: 0 2px 12px rgba(60, 52, 40, .06);
+  }
+
+  .paper-card-raised {
+    background: #FFFDF7;
+    border: 1px solid #E8E0D5;
+    box-shadow: 0 6px 24px rgba(60, 52, 40, .08);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

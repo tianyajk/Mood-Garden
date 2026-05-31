@@ -4,18 +4,20 @@ interface LoadingProps {
   text?: string;
 }
 
-/** 全局加载占位（低保真原型 五·全局加载）：种子 + 生长文案 */
-export function Loading({ text = '花园生长中…' }: LoadingProps) {
+export function Loading({ text = '' }: LoadingProps) {
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-ink-600">
-      <motion.span
-        className="text-4xl"
-        animate={{ scale: [1, 1.08, 1] }}
-        transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-      >
-        🌱
-      </motion.span>
-      <span className="text-caption">{text}</span>
+    <div className="flex flex-col items-center justify-center gap-4">
+      <div className="flex items-center gap-2">
+        {[0, 1, 2].map((i) => (
+          <motion.span
+            key={i}
+            className="inline-block h-2 w-2 rounded-full bg-ink-400"
+            animate={{ opacity: [0.3, 0.8, 0.3] }}
+            transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.2, ease: 'easeInOut' }}
+          />
+        ))}
+      </div>
+      {text && <span className="text-caption text-ink-400">{text}</span>}
     </div>
   );
 }

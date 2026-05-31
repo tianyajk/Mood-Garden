@@ -1,78 +1,68 @@
 import type { Config } from 'tailwindcss';
 
-/**
- * Design Token 落地（对齐 视觉设计.md 第一/六节）。
- * 中性色 / 品牌色 / 情绪强调色 / 语义色 / 圆角 / 间距 / 投影 全量 token 化。
- */
 const config: Config = {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        // 基础中性色（界面骨架·暖灰）
         bg: {
-          base: '#FAF8F5',
-          elevated: '#FFFFFF',
-          sunken: '#F1ECE6',
+          base: '#F5F0E8',
+          elevated: '#FFFDF7',
+          sunken: '#EDE7DA',
         },
         ink: {
-          900: '#2B2A28',
-          600: '#6B655E',
-          400: '#A8A199',
+          900: '#3C3428',
+          600: '#8B7E6E',
+          400: '#B8AFA0',
         },
         line: {
-          soft: '#EAE4DC',
+          soft: '#E8E0D5',
         },
-        // 品牌主色
         brand: {
-          green: '#7FB89B',
-          'green-deep': '#4E8A6E',
-          violet: '#A99BD4',
-          glow: '#F6E7C1',
+          warm: '#C28B4E',
+          'warm-deep': '#8B5E34',
+          paper: '#FDF6ED',
+          clay: '#D4956A',
         },
-        // 语义色（克制使用）
-        success: '#7FB89B',
-        warning: '#E6B450',
-        danger: '#D9776F',
+        success: '#8BA67C',
+        warning: '#D4A84B',
+        danger: '#D4956A',
       },
       borderRadius: {
-        sm: '12px',
-        md: '20px',
-        lg: '28px',
+        sm: '10px',
+        md: '14px',
+        lg: '20px',
+        xl: '28px',
         full: '9999px',
       },
-      spacing: {
-        // 8pt 栅格补充
-        '18': '4.5rem',
-      },
       boxShadow: {
-        sm: '0 2px 8px rgba(75,138,110,.06)',
-        md: '0 8px 24px rgba(75,138,110,.10)',
-        glow: '0 0 40px rgba(246,231,193,.45)',
+        sm: '0 2px 12px rgba(60,52,40,.06)',
+        md: '0 6px 24px rgba(60,52,40,.08)',
+        lg: '0 12px 40px rgba(60,52,40,.10)',
       },
       fontFamily: {
-        display: ['Fraunces', 'Source Han Serif SC', 'Songti SC', 'serif'],
+        display: ['Noto Serif SC', 'STSongti-SC', 'Songti SC', 'serif'],
         body: [
           '-apple-system',
           'BlinkMacSystemFont',
           'PingFang SC',
           'Microsoft YaHei',
-          'Inter',
+          'Hiragino Sans GB',
           'sans-serif',
         ],
       },
       fontSize: {
-        display: ['48px', { lineHeight: '1.1', fontWeight: '500' }],
-        h1: ['32px', { lineHeight: '1.2', fontWeight: '600' }],
-        h2: ['24px', { lineHeight: '1.3', fontWeight: '600' }],
-        h3: ['20px', { lineHeight: '1.4', fontWeight: '600' }],
-        'body-lg': ['18px', { lineHeight: '1.6', fontWeight: '400' }],
-        body: ['16px', { lineHeight: '1.6', fontWeight: '400' }],
-        caption: ['14px', { lineHeight: '1.5', fontWeight: '400' }],
-        micro: ['12px', { lineHeight: '1.4', fontWeight: '500' }],
+        display: ['40px', { lineHeight: '1.15', fontWeight: '500' }],
+        h1: ['28px', { lineHeight: '1.25', fontWeight: '500' }],
+        h2: ['22px', { lineHeight: '1.3', fontWeight: '500' }],
+        h3: ['18px', { lineHeight: '1.4', fontWeight: '500' }],
+        'body-lg': ['17px', { lineHeight: '1.7', fontWeight: '400' }],
+        body: ['15px', { lineHeight: '1.7', fontWeight: '400' }],
+        caption: ['13px', { lineHeight: '1.5', fontWeight: '400' }],
+        micro: ['11px', { lineHeight: '1.4', fontWeight: '500' }],
       },
       backgroundImage: {
-        'sky-day': 'linear-gradient(135deg, #7FB89B 0%, #8FA8CF 50%, #A99BD4 100%)',
+        'paper-warm': 'linear-gradient(180deg, #F5F0E8 0%, #EDE5D8 100%)',
       },
     },
   },

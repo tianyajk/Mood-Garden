@@ -7,10 +7,9 @@ interface EmotionPickerProps {
   onToggle: (key: EmotionKey) => void;
 }
 
-/** 情绪选择网格（单/多选）：桌面 4 列、移动 2 列 */
 export function EmotionPicker({ selected, onToggle }: EmotionPickerProps) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+    <div className="grid grid-cols-4 gap-3">
       {EMOTION_LIST.map((config) => (
         <EmotionCard
           key={config.key}

@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
-import { AnimatePresence } from 'framer-motion';
-import { Button } from '@/components/ui/Button';
+import { AnimatePresence, motion } from 'framer-motion';
 import { TimerDial } from '@/components/meditation/TimerDial';
 import { DurationPicker } from '@/components/meditation/DurationPicker';
 import { SoundPicker } from '@/components/meditation/SoundPicker';
@@ -10,8 +9,8 @@ import { SessionComplete } from '@/components/meditation/SessionComplete';
 import { useMeditationSession } from '@/hooks/useMeditationSession';
 import { useMoodRecords } from '@/hooks/useMoodRecords';
 import { getEmotionConfig } from '@/config/emotions';
+import { duration, easing } from '@/config/theme';
 
-/** 冥想页：呼吸计时 + 音景 + 统计（页面只布局，逻辑在 useMeditationSession） */
 export function MeditatePage() {
   const navigate = useNavigate();
   const { timer, sound, stats, completion, controls } = useMeditationSession();
@@ -19,7 +18,6 @@ export function MeditatePage() {
   const idle = timer.phase === 'idle';
   const appliedRef = useRef(false);
 
-  // 方案 C：根据当天情绪自动推荐音景（仅首次进入 idle 时触发一次）
   useEffect(() => {
     if (!idle || appliedRef.current) return;
     const first = todayRecord?.emotions[0];
@@ -32,28 +30,34 @@ export function MeditatePage() {
   }, [idle, todayRecord, sound]);
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center overflow-hidden bg-sky-day px-6 py-8">
-      <div className="absolute inset-0 bg-white/5" />
+    <div className="relative flex min-h-screen flex-col items-center overflow-hidden bg-[#3A3530]">
+      <div className="absolute inset-0 bg-gradient-to-b from-[#3A3530] via-[#3A3530] to-[#2D2824]" />
 
-      <header className="relative z-10 flex w-full max-w-[460px] items-center justify-between">
+      {/* Header */}
+      <header className="relative z-10 flex w-full max-w-[480px] items-center justify-between px-6 pt-8">
         <button
           onClick={() => navigate('/')}
-          className="glass flex h-10 w-10 items-center justify-center rounded-full text-white"
+          className="flex h-10 w-10 items-center justify-center rounded-xl text-white/60 hover:text-white/90 transition-colors text-lg"
           aria-label="返回首页"
         >
           ←
         </button>
-        <h1 className="font-display text-h3 text-white">静心一刻</h1>
+        <h1 className="font-display text-h3 text-white/90">静心一刻</h1>
         <div className="h-10 w-10" />
       </header>
 
-      <main className="relative z-10 mt-6 flex w-full flex-1 flex-col items-center justify-center gap-8">
+      <main className="relative z-10 mt-8 flex w-full flex-1 flex-col items-center justify-center gap-10 px-6">
         <MeditationStats stats={stats} />
 
         <TimerDial remainingSec={timer.remainingSec} progress={timer.progress} phase={timer.phase} />
 
         {idle && (
-          <div className="flex flex-col items-center gap-5">
+          <motion.div
+            className="flex flex-col items-center gap-6"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: duration.slow, ease: easing.gentle }}
+          >
             <DurationPicker value={timer.plannedSec} onChange={timer.changeDuration} disabled={!idle} />
             <SoundPicker
               value={sound.ambient}
@@ -62,41 +66,69 @@ export function MeditatePage() {
               onSelect={sound.selectAmbient}
               onVolumeChange={sound.setVolume}
             />
-          </div>
+          </motion.div>
         )}
 
         <div className="flex items-center gap-3">
           {idle && (
-            <Button variant="glass" size="lg" onClick={controls.start}>
-              开始冥想
-            </Button>
+            <button
+              onClick={controls.start}
+              className="flex h-14 w-14 items-center justify-center rounded-full bg-white/15 text-white text-xl hover:bg-white/25 transition-colors"
+              aria-label="开始冥想"
+            >
+              ▶
+            </button>
           )}
           {timer.phase === 'running' && (
-            <>
-              <Button variant="glass" onClick={controls.pause}>暂停</Button>
-              <Button variant="primary" onClick={controls.finishEarly}>结束</Button>
-            </>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={controls.pause}
+                className="text-white/60 hover:text-white/90 transition-colors text-caption"
+              >
+                暂停
+              </button>
+              <button
+                onClick={controls.finishEarly}
+                className="text-white/40 hover:text-white/70 transition-colors text-caption"
+              >
+                结束
+              </button>
+            </div>
           )}
           {timer.phase === 'paused' && (
-            <>
-              <Button variant="glass" onClick={controls.resume}>继续</Button>
-              <Button variant="primary" onClick={controls.finishEarly}>结束</Button>
-            </>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={controls.resume}
+                className="text-white/60 hover:text-white/90 transition-colors text-caption"
+              >
+                继续
+              </button>
+              <button
+                onClick={controls.finishEarly}
+                className="text-white/40 hover:text-white/70 transition-colors text-caption"
+              >
+                结束
+              </button>
+            </div>
           )}
         </div>
       </main>
 
-      {/* 完成卡浮层 */}
       <AnimatePresence>
         {completion && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center bg-ink-900/30 px-6 backdrop-blur-sm">
+          <motion.div
+            className="absolute inset-0 z-20 flex items-center justify-center bg-[#2D2824]/80 px-6 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
             <SessionComplete
               minutes={completion.minutes}
               completed={completion.completed}
               onAgain={controls.again}
               onClose={controls.closeCompletion}
             />
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

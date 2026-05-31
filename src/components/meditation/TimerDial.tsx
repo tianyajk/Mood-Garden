@@ -4,42 +4,36 @@ import { formatClock } from '@/utils/time';
 
 interface TimerDialState {
   remainingSec: number;
-  progress: number; // 0–1 已完成比例
+  progress: number;
   phase: TimerPhase;
 }
 
 const SIZE = 280;
-const STROKE = 6;
+const STROKE = 5;
 const R = (SIZE - STROKE) / 2;
 const CIRC = 2 * Math.PI * R;
 
-/**
- * 计时表盘：SVG 环形进度 + 呼吸引导（running 时内圈 4s 缩放，对齐 4-6s 呼吸节律）。
- * 纯展示，所有状态由 useMeditationTimer 注入。
- */
 export function TimerDial({ remainingSec, progress, phase }: TimerDialState) {
   const reduce = useReducedMotion();
   const breathing = phase === 'running' && !reduce;
 
   return (
     <div className="relative flex items-center justify-center" style={{ width: SIZE, height: SIZE }}>
-      {/* 呼吸光晕 */}
       <motion.div
-        className="absolute rounded-full bg-brand-glow/40 blur-2xl"
+        className="absolute rounded-full bg-amber-200/20 blur-3xl"
         style={{ width: SIZE * 0.7, height: SIZE * 0.7 }}
-        animate={breathing ? { scale: [1, 1.12, 1], opacity: [0.4, 0.7, 0.4] } : { scale: 1, opacity: 0.35 }}
+        animate={breathing ? { scale: [1, 1.12, 1], opacity: [0.3, 0.6, 0.3] } : { scale: 1, opacity: 0.25 }}
         transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
       />
 
-      {/* 进度环 */}
       <svg width={SIZE} height={SIZE} className="absolute -rotate-90">
-        <circle cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth={STROKE} />
+        <circle cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth={STROKE} />
         <motion.circle
           cx={SIZE / 2}
           cy={SIZE / 2}
           r={R}
           fill="none"
-          stroke="#FFFFFF"
+          stroke="#D4A84B"
           strokeWidth={STROKE}
           strokeLinecap="round"
           strokeDasharray={CIRC}
@@ -48,16 +42,15 @@ export function TimerDial({ remainingSec, progress, phase }: TimerDialState) {
         />
       </svg>
 
-      {/* 呼吸内圈 + 剩余时间 */}
       <motion.div
-        className="glass flex h-44 w-44 flex-col items-center justify-center rounded-full"
+        className="flex h-44 w-44 flex-col items-center justify-center rounded-full bg-white/8 border border-white/10"
         animate={breathing ? { scale: [1, 1.06, 1] } : { scale: 1 }}
         transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
       >
-        <span className="font-display text-display tabular-nums text-white drop-shadow-sm">
+        <span className="font-display text-[44px] tabular-nums text-white leading-none">
           {formatClock(remainingSec)}
         </span>
-        <span className="mt-1 text-caption text-white/70">{phaseHint(phase, breathing)}</span>
+        <span className="mt-2 text-caption text-white/50">{phaseHint(phase, breathing)}</span>
       </motion.div>
     </div>
   );

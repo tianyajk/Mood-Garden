@@ -35,9 +35,9 @@ export function Modal({ open, onClose, children, label }: ModalProps) {
           aria-modal="true"
           aria-label={label}
         >
-          <div className="absolute inset-0 bg-ink-900/30" />
+          <div className="absolute inset-0 bg-ink-900/20 backdrop-blur-sm" />
           <motion.div
-            className="glass relative z-10 w-full max-w-md rounded-lg p-6"
+            className="paper-card relative z-10 w-full max-w-md rounded-2xl p-6"
             initial={{ opacity: 0, y: 16, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.98 }}

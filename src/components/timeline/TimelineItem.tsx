@@ -7,29 +7,35 @@ interface TimelineItemProps {
   onClick: (record: MoodRecord) => void;
 }
 
-/** 时间线单条目：情绪 emoji + 日期 + 情绪名 + 描述摘要 */
 export function TimelineItem({ record, onClick }: TimelineItemProps) {
   const configs = record.emotions.map(getEmotionConfig);
   const emojis = configs.map((c) => c.emoji).join(' ');
-  const labels = configs.map((c) => c.label).join(' ');
+  const labels = configs.map((c) => c.label).join('、');
+  const primary = configs[0];
 
   return (
     <button
       type="button"
       onClick={() => onClick(record)}
-      className="flex w-full items-center gap-3 rounded-md px-3 py-3 text-left transition-colors hover:bg-bg-sunken focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-green"
+      className="group relative mb-3 flex w-full items-start gap-4 rounded-xl px-4 py-3 text-left transition-colors hover:bg-[#FFFDF7]/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-ink-900/20"
     >
-      <span className="text-xl" aria-hidden>
-        {emojis}
-      </span>
-      <span className="w-12 shrink-0 text-caption tabular-nums text-ink-600">
-        {formatShortDate(record.date)}
-      </span>
-      <span className="w-20 shrink-0 text-caption text-ink-900">{labels}</span>
-      <span className="flex-1 truncate text-caption text-ink-400">
-        {record.description || '—'}
-      </span>
-      <span className="shrink-0 text-ink-400">›</span>
+      <span className="mt-0.5 text-lg" aria-hidden>{emojis}</span>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="text-caption text-ink-900 font-medium">{labels}</span>
+          <span className="h-1 w-1 rounded-full bg-ink-400/40" />
+          <span className="text-micro text-ink-400 tabular-nums">{formatShortDate(record.date)}</span>
+        </div>
+        {record.description && (
+          <p className="mt-0.5 text-caption text-ink-600 line-clamp-1">{record.description}</p>
+        )}
+      </div>
+      {primary && (
+        <span
+          className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
+          style={{ backgroundColor: primary.color }}
+        />
+      )}
     </button>
   );
 }

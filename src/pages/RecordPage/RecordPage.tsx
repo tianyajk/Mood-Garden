@@ -1,15 +1,16 @@
 import { useNavigate } from 'react-router-dom';
+import { motion, useReducedMotion } from 'framer-motion';
 import { EmotionPicker } from '@/components/mood/EmotionPicker';
 import { MoodTextInput } from '@/components/mood/MoodTextInput';
 import { MoodSubmitBar } from '@/components/mood/MoodSubmitBar';
-import { Button } from '@/components/ui/Button';
-import { useToast } from '@/components/ui/Toast';
 import { AiAnalysisCard } from '@/components/feedback/AiAnalysisCard';
 import { useMoodForm } from '@/hooks/useMoodForm';
 import { useMoodRecords } from '@/hooks/useMoodRecords';
 import { useMoodSubmit } from '@/hooks/useMoodSubmit';
+import { useToast } from '@/components/ui/Toast';
 import { toDateKey, formatLongDate, formatTime } from '@/utils/date';
 import { getEmotionConfig } from '@/config/emotions';
+import { duration, easing } from '@/config/theme';
 
 export function RecordPage() {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ export function RecordPage() {
   const { todayRecords } = useMoodRecords();
   const { submit, submitting } = useMoodSubmit();
   const form = useMoodForm();
+  const reduce = useReducedMotion();
 
   const handleSubmit = async () => {
     if (!form.canSubmit) return;
@@ -30,32 +32,73 @@ export function RecordPage() {
   const showAnalysis = latest?.aiAnalysis ?? null;
   const accent = latest?.emotions[0] ? getEmotionConfig(latest.emotions[0]).color : undefined;
 
+  const fadeIn = {
+    hidden: { opacity: 0, y: 16 },
+    show: { opacity: 1, y: 0, transition: { duration: duration.slow, ease: easing.gentle } },
+  };
+
   return (
-    <div className="mx-auto min-h-screen max-w-2xl px-5 py-6">
-      <header className="flex items-center justify-between">
-        <Button variant="secondary" size="md" onClick={() => navigate('/')}>
-          ← 返回
-        </Button>
-        <span className="text-caption text-ink-600">{formatLongDate(toDateKey())}</span>
-      </header>
+    <div className="mx-auto min-h-screen max-w-[480px] px-5 py-8">
+      {/* Header */}
+      <motion.header
+        className="flex items-center justify-between"
+        variants={fadeIn}
+        initial="hidden"
+        animate="show"
+      >
+        <button
+          onClick={() => navigate('/')}
+          className="text-ink-400 hover:text-ink-900 transition-colors text-body"
+          aria-label="返回首页"
+        >
+          ←
+        </button>
+        <span className="text-caption text-ink-400">{formatLongDate(toDateKey())}</span>
+      </motion.header>
 
-      <h1 className="font-display mt-8 text-h1 text-ink-900">此刻，你的情绪是？</h1>
-      <p className="mt-1 text-caption text-ink-400">可单选，也可多选</p>
+      {/* Title */}
+      <motion.div
+        className="mt-10"
+        initial={reduce ? { opacity: 1 } : { opacity: 0, y: 16 }}
+        animate={reduce ? { opacity: 1 } : { opacity: 1, y: 0 }}
+        transition={{ duration: duration.slow, ease: easing.gentle, delay: 0.1 }}
+      >
+        <h1 className="font-display text-h1 text-ink-900">此刻，你的情绪是？</h1>
+        <p className="mt-1 text-caption text-ink-400">可以多选</p>
+      </motion.div>
 
-      <div className="mt-6">
+      {/* Emotion Grid */}
+      <motion.div
+        className="mt-8"
+        initial={reduce ? { opacity: 1 } : { opacity: 0, y: 16 }}
+        animate={reduce ? { opacity: 1 } : { opacity: 1, y: 0 }}
+        transition={{ duration: duration.slow, ease: easing.gentle, delay: 0.2 }}
+      >
         <EmotionPicker selected={form.emotions} onToggle={form.toggleEmotion} />
-      </div>
+      </motion.div>
 
-      <div className="mt-6">
+      {/* Text Input */}
+      <motion.div
+        className="mt-6"
+        initial={reduce ? { opacity: 1 } : { opacity: 0, y: 16 }}
+        animate={reduce ? { opacity: 1 } : { opacity: 1, y: 0 }}
+        transition={{ duration: duration.slow, ease: easing.gentle, delay: 0.3 }}
+      >
         <MoodTextInput
           value={form.description}
           charCount={form.charCount}
           charMax={form.charMax}
           onChange={form.updateDescription}
         />
-      </div>
+      </motion.div>
 
-      <div className="sticky bottom-0 z-10 -mx-5 mt-8 bg-bg-base/85 px-5 py-4 backdrop-blur-sm sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+      {/* Submit */}
+      <motion.div
+        className="mt-8"
+        initial={reduce ? { opacity: 1 } : { opacity: 0 }}
+        animate={reduce ? { opacity: 1 } : { opacity: 1 }}
+        transition={{ duration: duration.slow, ease: easing.gentle, delay: 0.35 }}
+      >
         <MoodSubmitBar
           selectedCount={form.emotions.length}
           canSubmit={form.canSubmit}
@@ -63,42 +106,56 @@ export function RecordPage() {
           hint={form.validation.message}
           onSubmit={handleSubmit}
         />
-      </div>
+      </motion.div>
 
-      {/* AI 反馈：最新一条记录的分析 */}
+      {/* AI Feedback */}
       {showAnalysis && (
-        <div className="mt-8">
+        <motion.div
+          className="mt-8"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: duration.slow, ease: easing.gentle }}
+        >
           <AiAnalysisCard analysis={showAnalysis} accentColor={accent} />
-        </div>
+        </motion.div>
       )}
 
-      {/* 今日记录列表 */}
+      {/* Today's Records */}
       {todayRecords.length > 0 && (
-        <div className="mt-8">
-          <h2 className="text-h3 text-ink-900">
-            今日已记录 {todayRecords.length} 次
+        <motion.div
+          className="mt-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: duration.slow, delay: 0.2 }}
+        >
+          <h2 className="font-display text-h3 text-ink-900">
+            今天 · {todayRecords.length} 条记录
           </h2>
-          <div className="mt-3 flex flex-col gap-2">
+          <div className="mt-4 flex flex-col gap-2">
             {[...todayRecords].reverse().map((r) => (
-              <div key={r.id} className="rounded-lg border border-line-soft bg-bg-elevated p-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-caption text-ink-400">
-                    {formatTime(r.createdAt)}
-                  </span>
-                  <span className="flex gap-1">
-                    {r.emotions.map((e) => (
-                      <span key={e}>{getEmotionConfig(e).emoji}</span>
-                    ))}
-                  </span>
+              <div
+                key={r.id}
+                className="paper-card rounded-xl px-4 py-3 flex items-center gap-3"
+              >
+                <span className="text-lg shrink-0">
+                  {r.emotions.map((e) => getEmotionConfig(e).emoji).join('')}
+                </span>
+                <div className="flex-1 min-w-0">
+                  {r.description ? (
+                    <p className="text-caption text-ink-700 line-clamp-1">{r.description}</p>
+                  ) : (
+                    <p className="text-caption text-ink-400 italic">仅记录了情绪</p>
+                  )}
                 </div>
-                {r.description && (
-                  <p className="mt-1 text-body text-ink-700 line-clamp-2">{r.description}</p>
-                )}
+                <span className="text-micro text-ink-400 shrink-0">{formatTime(r.createdAt)}</span>
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
       )}
+
+      {/* Bottom spacer */}
+      <div className="h-12" />
     </div>
   );
 }

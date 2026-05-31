@@ -3,7 +3,6 @@ import { AnimatePresence } from 'framer-motion';
 import { GardenProvider } from '@/context/GardenContext';
 import { ToastProvider } from '@/components/ui/Toast';
 import { PageTransition } from '@/components/ui/PageTransition';
-import { ParticleCursor } from '@/components/ui/ParticleCursor';
 import { HomePage } from '@/pages/HomePage/HomePage';
 import { RecordPage } from '@/pages/RecordPage/RecordPage';
 import { TimelinePage } from '@/pages/TimelinePage/TimelinePage';
@@ -30,7 +29,6 @@ export function App() {
     <GardenProvider>
       <ToastProvider>
         <BrowserRouter>
-          <ParticleCursor />
           <AnimatedRoutes />
         </BrowserRouter>
       </ToastProvider>
