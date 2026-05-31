@@ -27,3 +27,20 @@ export interface GardenScene {
   plantCount: number; // 随累计天数增长
   primaryColor: string;
 }
+
+/** 单株植物的渲染模型（每条记录 → 一株，由记录派生，非持久化） */
+export interface GardenPlantModel {
+  recordId: string; // 关联记录 id，供 raycast 点击回溯
+  date: string; // YYYY-MM-DD
+  plantTypes: string[]; // 主情绪的植物元素 id
+  color: string; // 主情绪 3D 场景原色 hex
+}
+
+/** 花园引擎视图模型（React → 引擎的唯一数据契约，整体派生重算） */
+export interface GardenViewModel {
+  stage: GardenStage;
+  timeOfDay: TimeOfDay; // 昼夜，影响天空/灯光
+  primaryColor: string; // 当天主色（地形/氛围）
+  plants: GardenPlantModel[]; // 每条记录一株
+  effects: string[]; // 当天激活的粒子/特效 id（去重）
+}

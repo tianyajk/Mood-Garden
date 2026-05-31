@@ -59,7 +59,7 @@ export function TimelinePage() {
       <RecordDetailModal
         record={active}
         onClose={() => setActive(null)}
-        onViewInGarden={() => navigate('/garden')}
+        onViewInGarden={(r) => navigate('/garden', { state: { focusDate: r.date } })}
       />
     </div>
   );

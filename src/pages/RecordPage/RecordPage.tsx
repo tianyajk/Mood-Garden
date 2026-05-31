@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { EmotionPicker } from '@/components/mood/EmotionPicker';
 import { MoodTextInput } from '@/components/mood/MoodTextInput';
 import { MoodSubmitBar } from '@/components/mood/MoodSubmitBar';
+import { SeedPlantingOverlay } from '@/components/mood/SeedPlantingOverlay';
 import { RecordedToday } from '@/pages/RecordPage/RecordedToday';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
@@ -18,6 +19,7 @@ export function RecordPage() {
   const { todayRecord } = useMoodRecords();
   const { submit, submitting } = useMoodSubmit();
   const [editing, setEditing] = useState(false);
+  const [planting, setPlanting] = useState(false);
 
   const form = useMoodForm(
     todayRecord ? { emotions: todayRecord.emotions, description: todayRecord.description } : undefined,
@@ -30,9 +32,11 @@ export function RecordPage() {
 
   const handleSubmit = async () => {
     if (!form.canSubmit) return;
+    setPlanting(true); // 链式动效：种子落地
     const { degraded } = await submit(form.draft);
     notify('今天的情绪已种下');
     if (degraded) notify('AI 暂时打了个盹，先用了默认陪伴语', 'warning');
+    await new Promise((r) => setTimeout(r, 700)); // 让种子落定再进花园看生长
     navigate('/garden');
   };
 
@@ -61,15 +65,18 @@ export function RecordPage() {
         />
       </div>
 
-      <div className="mt-8">
+      {/* 移动端底部吸附，桌面端常规流式 */}
+      <div className="sticky bottom-0 z-10 -mx-5 mt-8 bg-bg-base/85 px-5 py-4 backdrop-blur-sm sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
         <MoodSubmitBar
           selectedCount={form.emotions.length}
           canSubmit={form.canSubmit}
-          submitting={submitting}
+          submitting={submitting || planting}
           hint={form.validation.message}
           onSubmit={handleSubmit}
         />
       </div>
+
+      <SeedPlantingOverlay active={planting} />
     </div>
   );
 }

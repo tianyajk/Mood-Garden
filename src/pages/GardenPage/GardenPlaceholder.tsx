@@ -8,8 +8,8 @@ interface GardenPlaceholderProps {
 }
 
 /**
- * 2D 占位花园（Phase1）。Phase2 将由 garden/ Three.js 引擎替换此组件。
- * 这里仅用 emoji + 成长阶段表达「情绪 → 花园」的派生关系。
+ * 2D 降级花园：WebGL 不可用时由 GardenCanvas 回退到此组件。
+ * 用 emoji + 成长阶段表达「情绪 → 花园」的派生关系。
  */
 export function GardenPlaceholder({ emotions }: GardenPlaceholderProps) {
   const { stage, recordedDays } = useGardenStage();
@@ -36,7 +36,7 @@ export function GardenPlaceholder({ emotions }: GardenPlaceholderProps) {
       </div>
 
       <p className="max-w-sm text-caption text-white/70">
-        （3D 花园将在 Phase2 由 Three.js 引擎呈现）
+        （当前设备暂不支持 3D，已降级为简洁视图）
       </p>
     </div>
   );

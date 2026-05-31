@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:5173/)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" https://api.deepseek.com/v1/chat/completions -H \"Content-Type: application/json\" -H \"Authorization: Bearer sk-4187335d508642dbab4892a0d358b378\" -d '{\"model\":\"deepseek-v4-flash\",\"messages\":[{\"role\":\"user\",\"content\":\"hi\"}]}')",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\\\\n\" https://api.deepseek.com/v1/chat/completions -H \"Content-Type: application/json\" -H \"Authorization: Bearer sk-4187335d508642dbab4892a0d358b378\" -d '{\"model\":\"deepseek-chat\",\"messages\":[{\"role\":\"user\",\"content\":\"用一句话回复：你好\"}],\"max_tokens\":50}')",
+      "Bash(cat src/**/*.css)",
+      "Bash(cat src/index.css)",
+      "Bash(cat src/styles/*.css)",
+      "Bash(cat tailwind.config.ts)",
+      "Bash(cat tailwind.config.js)"
+    ]
+  }
+}

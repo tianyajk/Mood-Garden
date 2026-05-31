@@ -1,29 +1,44 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import type { MoodRecord } from '@/types/mood';
 import { Button } from '@/components/ui/Button';
+import { MusicToggle } from '@/components/ui/MusicToggle';
+import { useToast } from '@/components/ui/Toast';
 import { AiAnalysisCard } from '@/components/feedback/AiAnalysisCard';
 import { CompanionQuote } from '@/components/feedback/CompanionQuote';
-import { GardenPlaceholder } from '@/pages/GardenPage/GardenPlaceholder';
+import { RecordDetailModal } from '@/components/timeline/RecordDetailModal';
 import { EmptyGarden } from '@/pages/GardenPage/EmptyGarden';
+import { GardenCanvas } from '@/garden/GardenCanvas';
 import { useMoodRecords } from '@/hooks/useMoodRecords';
 import { useAiFeedback } from '@/hooks/useAiFeedback';
 import { getEmotionConfig } from '@/config/emotions';
 import { formatShortDate, toDateKey } from '@/utils/date';
 
 /**
- * 花园展示页（Phase1 版）：2D 占位舞台 + AI 反馈 + 陪伴语。
- * 注意：Three.js 3D 花园引擎属于 Phase2，本页仅占位，不在此实现。
+ * 花园展示页：挂载 3D 花园引擎 + AI 反馈 + 陪伴语（页面只组合）。
+ * 3D 渲染逻辑在 garden/ 引擎与 useGardenScene，本页只做布局与状态编排。
  */
 export function GardenPage() {
   const navigate = useNavigate();
-  const { todayRecord, hydrated } = useMoodRecords();
-  const { fetchCompanion, companionLoading } = useAiFeedback();
+  const location = useLocation();
+  const focusDate = (location.state as { focusDate?: string } | null)?.focusDate ?? null;
+
+  const { notify } = useToast();
+  const { records, todayRecord, hydrated, getRecordByDate } = useMoodRecords();
+  const { fetchCompanion, companionLoading, degraded } = useAiFeedback();
   const [quote, setQuote] = useState('');
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [focusId, setFocusId] = useState<string | null>(null);
 
-  const emotions = todayRecord?.emotions ?? [];
+  const source = todayRecord ?? records[0];
+  const emotions = source?.emotions ?? [];
   const accent = emotions[0] ? getEmotionConfig(emotions[0]).color : undefined;
+  const selectedRecord = useMemo<MoodRecord | null>(
+    () => records.find((r) => r.id === selectedId) ?? null,
+    [records, selectedId],
+  );
 
-  // 进入时按当天情绪生成陪伴语
+  // 进入时按情绪生成陪伴语
   useEffect(() => {
     let alive = true;
     fetchCompanion(emotions).then((c) => {
@@ -33,19 +48,34 @@ export function GardenPage() {
       alive = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [todayRecord?.id]);
+  }, [source?.id]);
 
-  const refresh = () => {
-    fetchCompanion(emotions).then((c) => setQuote(c.text));
-  };
+  // 时间轴「在花园中查看」：聚焦该株并弹出当天
+  useEffect(() => {
+    if (!focusDate) return;
+    const rec = getRecordByDate(focusDate);
+    if (rec) {
+      setFocusId(rec.id);
+      setSelectedId(rec.id);
+    }
+  }, [focusDate, getRecordByDate]);
 
-  // 空花园：已 hydrate 且今天未记录
-  if (hydrated && !todayRecord) {
+  // AI 降级提示（无 key / 失败时）
+  useEffect(() => {
+    if (degraded) notify('AI 暂时打了个盹，先用了默认陪伴语', 'warning');
+  }, [degraded, notify]);
+
+  const refresh = () => fetchCompanion(emotions).then((c) => setQuote(c.text));
+
+  // 空花园：已 hydrate 且无任何记录
+  if (hydrated && records.length === 0) {
     return <EmptyGarden onSeed={() => navigate('/record')} />;
   }
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-sky-day">
+      <GardenCanvas onPlantSelect={setSelectedId} focusRecordId={focusId} />
+
       {/* 顶部浮条 */}
       <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-between px-5 py-4">
         <span className="glass rounded-full px-4 py-1.5 text-caption text-ink-900">
@@ -56,12 +86,9 @@ export function GardenPage() {
         </Button>
       </div>
 
-      {/* 2D 占位花园舞台 */}
-      <GardenPlaceholder emotions={emotions} />
-
-      {/* 左下 AI 反馈卡 */}
+      {/* AI 反馈卡：桌面左下悬浮，移动端底部抽屉式 */}
       {todayRecord?.aiAnalysis && (
-        <div className="absolute bottom-28 left-5 z-20 w-[min(320px,calc(100%-2.5rem))]">
+        <div className="absolute bottom-24 left-3 right-3 z-20 sm:bottom-28 sm:left-5 sm:right-auto sm:w-80">
           <AiAnalysisCard analysis={todayRecord.aiAnalysis} accentColor={accent} />
         </div>
       )}
@@ -71,12 +98,26 @@ export function GardenPage() {
         {quote && <CompanionQuote text={quote} loading={companionLoading} onRefresh={refresh} />}
       </div>
 
+      {/* 左下音乐开关 */}
+      <div className="absolute bottom-6 left-5 z-20">
+        <MusicToggle />
+      </div>
+
       {/* 右下主行动 */}
       <div className="absolute bottom-6 right-5 z-20">
         <Button variant="glass" size="lg" onClick={() => navigate('/record')}>
           {todayRecord ? '查看今日' : '今天记录'}
         </Button>
       </div>
+
+      <RecordDetailModal
+        record={selectedRecord}
+        onClose={() => setSelectedId(null)}
+        onViewInGarden={(r) => {
+          setFocusId(r.id);
+          setSelectedId(null);
+        }}
+      />
     </div>
   );
 }
