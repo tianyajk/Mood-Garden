@@ -35,12 +35,10 @@ body::before {
   background-size: 256px 256px;
 }
 
-/* 标题用衬线 */
 .font-display {
   letter-spacing: -0.01em;
 }
 
-/* 卡片纸质感 */
 @layer components {
   .paper-card {
     background: #FFFDF7;
@@ -53,6 +51,41 @@ body::before {
     border: 1px solid #E8E0D5;
     box-shadow: 0 6px 24px rgba(60, 52, 40, .08);
   }
+}
+
+/* ====== 壁纸模式 ====== */
+html[data-wallpaper] body {
+  background-color: transparent;
+}
+html[data-wallpaper] body::before {
+  opacity: 0.015;
+}
+
+/* 所有页面的标准背景 → 半透明 */
+html[data-wallpaper] .bg-bg-base {
+  background-color: rgba(245, 240, 232, 0.7) !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+html[data-wallpaper] .bg-paper-warm {
+  background-color: rgba(245, 240, 232, 0.5) !important;
+}
+html[data-wallpaper] .min-h-screen.bg-bg-base {
+  background-color: rgba(245, 240, 232, 0.55) !important;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* 卡片在壁纸下更透一点 */
+html[data-wallpaper] .paper-card {
+  background: rgba(255, 253, 247, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* 首页覆盖层 */
+html[data-wallpaper] .home-overlay {
+  background-color: rgba(245, 240, 232, 0.4) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

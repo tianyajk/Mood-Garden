@@ -27,7 +27,7 @@ export function TimelinePage() {
   };
 
   return (
-    <div className="mx-auto min-h-screen max-w-[480px] px-5 py-8">
+    <div className="mx-auto min-h-screen max-w-[480px] px-5 py-8 bg-bg-base">
       {/* Header */}
       <motion.header
         className="flex items-center gap-4"
@@ -37,10 +37,10 @@ export function TimelinePage() {
       >
         <button
           onClick={() => navigate('/')}
-          className="text-ink-400 hover:text-ink-900 transition-colors text-body"
+          className="flex items-center gap-1 rounded-xl bg-bg-sunken px-3 py-2 text-caption text-ink-600 hover:bg-line-soft hover:text-ink-900 transition-colors"
           aria-label="返回首页"
         >
-          ←
+          ← 返回
         </button>
         <h1 className="font-display text-h2 text-ink-900">情绪旅程</h1>
       </motion.header>

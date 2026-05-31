@@ -44,6 +44,7 @@ export function useMoodRecords() {
         date,
         emotions: draft.emotions,
         description: draft.description,
+        image: draft.image,
         aiAnalysis,
         createdAt: Date.now(),
       };

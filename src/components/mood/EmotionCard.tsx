@@ -7,10 +7,10 @@ import { cn } from '@/utils/cn';
 interface EmotionCardProps {
   config: EmotionConfig;
   selected: boolean;
-  onToggle: (key: EmotionConfig['key']) => void;
+  onSelect: (key: EmotionConfig['key']) => void;
 }
 
-export function EmotionCard({ config, selected, onToggle }: EmotionCardProps) {
+export function EmotionCard({ config, selected, onSelect }: EmotionCardProps) {
   const cardStyle: CSSProperties = selected
     ? { borderColor: config.color, backgroundColor: config.bgColor }
     : {};
@@ -18,7 +18,7 @@ export function EmotionCard({ config, selected, onToggle }: EmotionCardProps) {
   return (
     <motion.button
       type="button"
-      onClick={() => onToggle(config.key)}
+      onClick={() => onSelect(config.key)}
       aria-pressed={selected}
       aria-label={config.label}
       whileTap={{ scale: 0.96 }}

@@ -37,10 +37,10 @@ export function MeditatePage() {
       <header className="relative z-10 flex w-full max-w-[480px] items-center justify-between px-6 pt-8">
         <button
           onClick={() => navigate('/')}
-          className="flex h-10 w-10 items-center justify-center rounded-xl text-white/60 hover:text-white/90 transition-colors text-lg"
+          className="flex items-center gap-1 rounded-xl bg-white/10 px-3 py-2 text-caption text-white/70 hover:bg-white/15 hover:text-white transition-colors"
           aria-label="返回首页"
         >
-          ←
+          ← 返回
         </button>
         <h1 className="font-display text-h3 text-white/90">静心一刻</h1>
         <div className="h-10 w-10" />
