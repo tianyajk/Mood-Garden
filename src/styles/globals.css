@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: theme('colors.bg.base');
+  color: theme('colors.ink.900');
+  font-family: theme('fontFamily.body');
+  letter-spacing: 0.02em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* 毛玻璃材质（视觉设计 6.4），抽成工具类供 ui/Card 的 glass 变体复用 */
+@layer components {
+  .glass {
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(16px) saturate(120%);
+    -webkit-backdrop-filter: blur(16px) saturate(120%);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: theme('boxShadow.md');
+  }
+
+  .glass-dark {
+    background: rgba(30, 34, 55, 0.35);
+    backdrop-filter: blur(16px) saturate(120%);
+    -webkit-backdrop-filter: blur(16px) saturate(120%);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: theme('boxShadow.md');
+  }
+}
+
+/* 标题用衬线增强叙事感（视觉设计 二） */
+.font-display {
+  letter-spacing: -0.01em;
+}
+
+/* 尊重系统「减少动态」（视觉设计 5.3，Phase3 进阶，这里先建立基线） */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
