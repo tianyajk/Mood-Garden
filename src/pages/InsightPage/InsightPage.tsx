@@ -4,6 +4,7 @@ import { InsightPortraitCard } from '@/components/insight/InsightPortraitCard';
 import { InsightPatternsCard } from '@/components/insight/InsightPatternsCard';
 import { InsightSuggestionsCard } from '@/components/insight/InsightSuggestionsCard';
 import { InsightPeriodCard } from '@/components/insight/InsightPeriodCard';
+import { BackupPanel } from '@/components/settings/BackupPanel';
 import { useAiInsight } from '@/hooks/useAiInsight';
 import { useInsightPeriods } from '@/hooks/useInsightPeriods';
 import { useMoodRecords } from '@/hooks/useMoodRecords';
@@ -53,6 +54,10 @@ export function InsightPage() {
             {loading ? '分析中…' : '重新分析'}
           </button>
         </motion.header>
+
+        <motion.div className="mb-6" {...fadeIn(0.05)}>
+          <BackupPanel />
+        </motion.div>
 
         {/* 数据不足 */}
         {!hasEnoughData && (
