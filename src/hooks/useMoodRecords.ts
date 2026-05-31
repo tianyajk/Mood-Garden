@@ -12,38 +12,33 @@ import { toDateKey } from '@/utils/date';
 export function useMoodRecords() {
   const { state, dispatch } = useGardenContext();
 
-  /** 全部记录，按日期倒序（新→旧） */
+  /** 全部记录，按创建时间倒序（新→旧） */
   const records = useMemo(
-    () => [...state.records].sort((a, b) => (a.date < b.date ? 1 : -1)),
+    () => [...state.records].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)),
     [state.records],
   );
 
-  /** 取某天记录 */
-  const getRecordByDate = useCallback(
-    (date: string): MoodRecord | undefined => state.records.find((r) => r.date === date),
+  /** 取某天全部记录 */
+  const getRecordsByDate = useCallback(
+    (date: string): MoodRecord[] => state.records.filter((r) => r.date === date),
     [state.records],
   );
 
-  /** 今天的记录（可能不存在） */
-  const todayRecord = useMemo(
-    () => state.records.find((r) => r.date === toDateKey()),
+  /** 今天的全部记录（可能为空） */
+  const todayRecords = useMemo(
+    () => state.records.filter((r) => r.date === toDateKey()),
     [state.records],
   );
 
-  /** 新增某天记录（同一天已存在则改走 update） */
+  /** 今天最新一条（便利字段） */
+  const latestTodayRecord = useMemo<MoodRecord | undefined>(
+    () => todayRecords[todayRecords.length - 1],
+    [todayRecords],
+  );
+
+  /** 新增一条记录（一天可多条，不再覆盖旧记录） */
   const addRecord = useCallback(
     (date: string, draft: MoodDraft, aiAnalysis: AiAnalysis | null): MoodRecord => {
-      const existing = state.records.find((r) => r.date === date);
-      if (existing) {
-        const updated: MoodRecord = {
-          ...existing,
-          emotions: draft.emotions,
-          description: draft.description,
-          aiAnalysis,
-        };
-        dispatch({ type: 'UPDATE_RECORD', payload: updated });
-        return updated;
-      }
       const record: MoodRecord = {
         id: createId(),
         date,
@@ -55,14 +50,15 @@ export function useMoodRecords() {
       dispatch({ type: 'ADD_RECORD', payload: record });
       return record;
     },
-    [state.records, dispatch],
+    [dispatch],
   );
 
   return {
     records,
-    todayRecord,
+    todayRecords,
+    latestTodayRecord,
     hydrated: state.hydrated,
-    getRecordByDate,
+    getRecordsByDate,
     addRecord,
   };
 }

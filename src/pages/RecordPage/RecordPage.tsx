@@ -1,49 +1,39 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EmotionPicker } from '@/components/mood/EmotionPicker';
 import { MoodTextInput } from '@/components/mood/MoodTextInput';
 import { MoodSubmitBar } from '@/components/mood/MoodSubmitBar';
-import { SeedPlantingOverlay } from '@/components/mood/SeedPlantingOverlay';
-import { RecordedToday } from '@/pages/RecordPage/RecordedToday';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
+import { AiAnalysisCard } from '@/components/feedback/AiAnalysisCard';
 import { useMoodForm } from '@/hooks/useMoodForm';
 import { useMoodRecords } from '@/hooks/useMoodRecords';
 import { useMoodSubmit } from '@/hooks/useMoodSubmit';
-import { toDateKey, formatLongDate } from '@/utils/date';
+import { toDateKey, formatLongDate, formatTime } from '@/utils/date';
+import { getEmotionConfig } from '@/config/emotions';
 
-/** 情绪记录页：选情绪 + 描述 + 提交（页面只组合，逻辑在 hooks） */
 export function RecordPage() {
   const navigate = useNavigate();
   const { notify } = useToast();
-  const { todayRecord } = useMoodRecords();
+  const { todayRecords } = useMoodRecords();
   const { submit, submitting } = useMoodSubmit();
-  const [editing, setEditing] = useState(false);
-  const [planting, setPlanting] = useState(false);
-
-  const form = useMoodForm(
-    todayRecord ? { emotions: todayRecord.emotions, description: todayRecord.description } : undefined,
-  );
-
-  // 状态 C：今日已记录且未进入编辑
-  if (todayRecord && !editing) {
-    return <RecordedToday record={todayRecord} onEdit={() => setEditing(true)} />;
-  }
+  const form = useMoodForm();
 
   const handleSubmit = async () => {
     if (!form.canSubmit) return;
-    setPlanting(true); // 链式动效：种子落地
     const { degraded } = await submit(form.draft);
-    notify('今天的情绪已种下');
-    if (degraded) notify('AI 暂时打了个盹，先用了默认陪伴语', 'warning');
-    await new Promise((r) => setTimeout(r, 700)); // 让种子落定再进花园看生长
-    navigate('/garden');
+    form.reset();
+    notify('情绪已记录');
+    if (degraded) notify('AI 暂时打了个盹，先用了默认反馈', 'warning');
   };
+
+  const latest = todayRecords[todayRecords.length - 1];
+  const showAnalysis = latest?.aiAnalysis ?? null;
+  const accent = latest?.emotions[0] ? getEmotionConfig(latest.emotions[0]).color : undefined;
 
   return (
     <div className="mx-auto min-h-screen max-w-2xl px-5 py-6">
       <header className="flex items-center justify-between">
-        <Button variant="secondary" size="md" onClick={() => navigate(-1)}>
+        <Button variant="secondary" size="md" onClick={() => navigate('/')}>
           ← 返回
         </Button>
         <span className="text-caption text-ink-600">{formatLongDate(toDateKey())}</span>
@@ -65,18 +55,50 @@ export function RecordPage() {
         />
       </div>
 
-      {/* 移动端底部吸附，桌面端常规流式 */}
       <div className="sticky bottom-0 z-10 -mx-5 mt-8 bg-bg-base/85 px-5 py-4 backdrop-blur-sm sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
         <MoodSubmitBar
           selectedCount={form.emotions.length}
           canSubmit={form.canSubmit}
-          submitting={submitting || planting}
+          submitting={submitting}
           hint={form.validation.message}
           onSubmit={handleSubmit}
         />
       </div>
 
-      <SeedPlantingOverlay active={planting} />
+      {/* AI 反馈：最新一条记录的分析 */}
+      {showAnalysis && (
+        <div className="mt-8">
+          <AiAnalysisCard analysis={showAnalysis} accentColor={accent} />
+        </div>
+      )}
+
+      {/* 今日记录列表 */}
+      {todayRecords.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-h3 text-ink-900">
+            今日已记录 {todayRecords.length} 次
+          </h2>
+          <div className="mt-3 flex flex-col gap-2">
+            {[...todayRecords].reverse().map((r) => (
+              <div key={r.id} className="rounded-lg border border-line-soft bg-bg-elevated p-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-caption text-ink-400">
+                    {formatTime(r.createdAt)}
+                  </span>
+                  <span className="flex gap-1">
+                    {r.emotions.map((e) => (
+                      <span key={e}>{getEmotionConfig(e).emoji}</span>
+                    ))}
+                  </span>
+                </div>
+                {r.description && (
+                  <p className="mt-1 text-body text-ink-700 line-clamp-2">{r.description}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

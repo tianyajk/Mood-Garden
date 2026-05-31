@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { MoodRecord } from '@/types/mood';
 import { Button } from '@/components/ui/Button';
@@ -7,20 +7,24 @@ import { TimelineItem } from '@/components/timeline/TimelineItem';
 import { RecordDetailModal } from '@/components/timeline/RecordDetailModal';
 import { TimelineEmpty } from '@/pages/TimelinePage/TimelineEmpty';
 import { useTimeline } from '@/hooks/useTimeline';
-import { useGardenStage } from '@/hooks/useGardenStage';
+import { useMoodRecords } from '@/hooks/useMoodRecords';
+import { deriveStage } from '@/config/growth';
 
 /** 时间轴页：历史记录 + 搜索 + 筛选 + 详情（页面只组合） */
 export function TimelinePage() {
   const navigate = useNavigate();
   const tl = useTimeline();
-  const { stage, recordedDays } = useGardenStage();
+  const { records } = useMoodRecords();
   const [active, setActive] = useState<MoodRecord | null>(null);
+
+  const recordedDays = useMemo(() => new Set(records.map((r) => r.date)).size, [records]);
+  const stage = useMemo(() => deriveStage(recordedDays), [recordedDays]);
 
   return (
     <div className="mx-auto min-h-screen max-w-2xl px-5 py-6">
       <header className="flex items-center gap-3">
-        <Button variant="secondary" size="md" onClick={() => navigate('/garden')}>
-          ← 花园
+        <Button variant="secondary" size="md" onClick={() => navigate('/')}>
+          ← 首页
         </Button>
         <h1 className="font-display text-h1 text-ink-900">我的情绪旅程</h1>
       </header>
@@ -59,7 +63,6 @@ export function TimelinePage() {
       <RecordDetailModal
         record={active}
         onClose={() => setActive(null)}
-        onViewInGarden={(r) => navigate('/garden', { state: { focusDate: r.date } })}
       />
     </div>
   );

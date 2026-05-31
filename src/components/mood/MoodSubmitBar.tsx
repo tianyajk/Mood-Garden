@@ -17,10 +17,10 @@ export function MoodSubmitBar({
   onSubmit,
 }: MoodSubmitBarProps) {
   const label = submitting
-    ? '◐ 正在种下…'
+    ? '◐ 正在保存…'
     : selectedCount > 0
-      ? `种下今天 (${selectedCount})`
-      : '种下今天';
+      ? `记录此刻 (${selectedCount})`
+      : '记录此刻';
 
   return (
     <div className="flex flex-col items-center gap-2">

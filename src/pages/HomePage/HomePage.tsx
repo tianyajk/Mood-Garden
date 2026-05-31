@@ -46,10 +46,6 @@ export function HomePage() {
         </motion.div>
 
         <motion.div className="mt-6 flex items-center gap-6 text-caption text-white/75" variants={fadeItem}>
-          <button onClick={() => navigate('/garden')} className="transition-colors hover:text-white">
-            我的花园
-          </button>
-          <span className="text-white/30">·</span>
           <button onClick={() => navigate('/timeline')} className="transition-colors hover:text-white">
             情绪时间线
           </button>

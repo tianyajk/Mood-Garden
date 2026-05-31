@@ -37,6 +37,14 @@ export function formatMonthLabel(key: string): string {
   return `${date.getFullYear()}年${date.getMonth() + 1}月`;
 }
 
+/** 时间戳 → HH:MM */
+export function formatTime(ts: number): string {
+  const d = new Date(ts);
+  const h = String(d.getHours()).padStart(2, '0');
+  const m = String(d.getMinutes()).padStart(2, '0');
+  return `${h}:${m}`;
+}
+
 /** 是否为「本月」（用于时间轴筛选） */
 export function isInCurrentMonth(key: string, now: Date = new Date()): boolean {
   const date = fromDateKey(key);

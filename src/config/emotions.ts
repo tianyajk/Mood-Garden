@@ -6,6 +6,7 @@ import type { EmotionKey } from '@/types/mood';
  * 新增/调整情绪只改此文件。
  * - color/bgColor：UI 柔化版（选中态、卡片填充）。
  * - sceneColor：3D 场景饱和原色（Phase2 引擎消费）。
+ * - recommendedAmbient：推荐冥想音景（可选，方案C 情绪→白噪音）。
  */
 export const EMOTIONS: Record<EmotionKey, EmotionConfig> = {
   happy: {
@@ -29,6 +30,7 @@ export const EMOTIONS: Record<EmotionKey, EmotionConfig> = {
     plants: ['white-flower', 'grass'],
     effects: ['breeze'],
     timeOfDay: 'day',
+    recommendedAmbient: 'stream',
   },
   excited: {
     key: 'excited',
@@ -51,6 +53,7 @@ export const EMOTIONS: Record<EmotionKey, EmotionConfig> = {
     plants: ['blue-thorn'],
     effects: ['rain', 'fog'],
     timeOfDay: 'overcast',
+    recommendedAmbient: 'rain',
   },
   confused: {
     key: 'confused',
@@ -62,6 +65,7 @@ export const EMOTIONS: Record<EmotionKey, EmotionConfig> = {
     plants: ['purple-flower-sea'],
     effects: ['floating-cloud'],
     timeOfDay: 'dusk',
+    recommendedAmbient: 'ocean',
   },
   sad: {
     key: 'sad',
@@ -73,6 +77,7 @@ export const EMOTIONS: Record<EmotionKey, EmotionConfig> = {
     plants: ['moonlight-flower'],
     effects: ['firefly'],
     timeOfDay: 'night',
+    recommendedAmbient: 'ocean',
   },
   angry: {
     key: 'angry',
@@ -84,6 +89,7 @@ export const EMOTIONS: Record<EmotionKey, EmotionConfig> = {
     plants: ['red-spider-lily'],
     effects: ['flame'],
     timeOfDay: 'dusk',
+    recommendedAmbient: 'stream',
   },
   lonely: {
     key: 'lonely',
@@ -95,6 +101,7 @@ export const EMOTIONS: Record<EmotionKey, EmotionConfig> = {
     plants: ['snow-tree'],
     effects: ['cold-glow', 'snow'],
     timeOfDay: 'night',
+    recommendedAmbient: 'forest',
   },
 };
 

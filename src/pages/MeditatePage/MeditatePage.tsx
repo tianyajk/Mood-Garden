@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import { TimerDial } from '@/components/meditation/TimerDial';
@@ -7,12 +8,28 @@ import { SoundPicker } from '@/components/meditation/SoundPicker';
 import { MeditationStats } from '@/components/meditation/MeditationStats';
 import { SessionComplete } from '@/components/meditation/SessionComplete';
 import { useMeditationSession } from '@/hooks/useMeditationSession';
+import { useMoodRecords } from '@/hooks/useMoodRecords';
+import { getEmotionConfig } from '@/config/emotions';
 
 /** 冥想页：呼吸计时 + 音景 + 统计（页面只布局，逻辑在 useMeditationSession） */
 export function MeditatePage() {
   const navigate = useNavigate();
   const { timer, sound, stats, completion, controls } = useMeditationSession();
+  const { latestTodayRecord: todayRecord } = useMoodRecords();
   const idle = timer.phase === 'idle';
+  const appliedRef = useRef(false);
+
+  // 方案 C：根据当天情绪自动推荐音景（仅首次进入 idle 时触发一次）
+  useEffect(() => {
+    if (!idle || appliedRef.current) return;
+    const first = todayRecord?.emotions[0];
+    if (!first) return;
+    const recommended = getEmotionConfig(first).recommendedAmbient;
+    if (recommended) {
+      sound.selectAmbient(recommended);
+      appliedRef.current = true;
+    }
+  }, [idle, todayRecord, sound]);
 
   return (
     <div className="relative flex min-h-screen flex-col items-center overflow-hidden bg-sky-day px-6 py-8">

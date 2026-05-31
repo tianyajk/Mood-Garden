@@ -8,7 +8,7 @@ import { formatLongDate } from '@/utils/date';
 interface RecordDetailModalProps {
   record: MoodRecord | null;
   onClose: () => void;
-  onViewInGarden: (record: MoodRecord) => void;
+  onViewInGarden?: (record: MoodRecord) => void;
 }
 
 /** 记录详情弹窗（低保真原型 四·详情）：日期 / 情绪 / 记录 / AI 分析 */
@@ -52,9 +52,11 @@ export function RecordDetailModal({ record, onClose, onViewInGarden }: RecordDet
             <AiAnalysisCard analysis={record.aiAnalysis} accentColor={accent} />
           )}
 
-          <Button variant="secondary" onClick={() => onViewInGarden(record)} className="self-stretch">
-            在花园中查看
-          </Button>
+          {onViewInGarden && (
+            <Button variant="secondary" onClick={() => onViewInGarden(record)} className="self-stretch">
+              在花园中查看
+            </Button>
+          )}
         </div>
       )}
     </Modal>

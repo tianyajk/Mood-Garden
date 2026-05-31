@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import { fadeUp } from '@/config/theme';
@@ -9,8 +10,10 @@ interface SessionCompleteProps {
   onClose: () => void;
 }
 
-/** 单次冥想完成卡：温柔反馈 + 再来一次 / 完成 */
+/** 单次冥想完成卡：温柔反馈 + 记录心情 + 再来一次 / 完成 */
 export function SessionComplete({ minutes, completed, onAgain, onClose }: SessionCompleteProps) {
+  const navigate = useNavigate();
+
   return (
     <motion.div
       className="glass flex w-full max-w-[360px] flex-col items-center gap-4 rounded-lg p-8 text-center text-white"
@@ -24,6 +27,9 @@ export function SessionComplete({ minutes, completed, onAgain, onClose }: Sessio
       <div className="mt-2 flex gap-3">
         <Button variant="glass" onClick={onAgain}>
           再来一次
+        </Button>
+        <Button variant="secondary" onClick={() => navigate('/record')}>
+          记录心情 →
         </Button>
         <Button variant="primary" onClick={onClose}>
           完成

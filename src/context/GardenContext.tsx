@@ -25,11 +25,12 @@ const initialState: GardenState = {
   hydrated: false,
 };
 
-/** 由记录列表派生 stage（记录天数 = 记录条数，date 每天唯一） */
+/** 由记录列表派生 stage（按不重复日期计数） */
 function withDerived(records: MoodRecord[], hydrated: boolean): GardenState {
+  const uniqueDays = new Set(records.map((r) => r.date)).size;
   return {
     records,
-    stage: deriveStage(records.length).stage,
+    stage: deriveStage(uniqueDays).stage,
     hydrated,
   };
 }
