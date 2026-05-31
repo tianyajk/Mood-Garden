@@ -17,7 +17,9 @@ export interface GardenState {
 export type GardenAction =
   | { type: 'HYDRATE'; payload: MoodRecord[] }
   | { type: 'ADD_RECORD'; payload: MoodRecord }
-  | { type: 'UPDATE_RECORD'; payload: MoodRecord };
+  | { type: 'UPDATE_RECORD'; payload: MoodRecord }
+  | { type: 'DELETE_RECORD'; payload: string }
+  | { type: 'REMOVE_IMAGE'; payload: string };
 
 const initialState: GardenState = {
   records: [],
@@ -44,6 +46,16 @@ function reducer(state: GardenState, action: GardenAction): GardenState {
     case 'UPDATE_RECORD':
       return withDerived(
         state.records.map((r) => (r.id === action.payload.id ? action.payload : r)),
+        state.hydrated,
+      );
+    case 'DELETE_RECORD':
+      return withDerived(
+        state.records.filter((r) => r.id !== action.payload),
+        state.hydrated,
+      );
+    case 'REMOVE_IMAGE':
+      return withDerived(
+        state.records.map((r) => (r.id === action.payload ? { ...r, image: undefined } : r)),
         state.hydrated,
       );
     default:

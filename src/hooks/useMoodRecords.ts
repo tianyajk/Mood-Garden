@@ -54,6 +54,16 @@ export function useMoodRecords() {
     [dispatch],
   );
 
+  const deleteRecord = useCallback(
+    (id: string) => dispatch({ type: 'DELETE_RECORD', payload: id }),
+    [dispatch],
+  );
+
+  const removeImage = useCallback(
+    (id: string) => dispatch({ type: 'REMOVE_IMAGE', payload: id }),
+    [dispatch],
+  );
+
   return {
     records,
     todayRecords,
@@ -61,5 +71,7 @@ export function useMoodRecords() {
     hydrated: state.hydrated,
     getRecordsByDate,
     addRecord,
+    deleteRecord,
+    removeImage,
   };
 }

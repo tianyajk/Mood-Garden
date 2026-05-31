@@ -8,11 +8,13 @@ import { MeditationStats } from '@/components/meditation/MeditationStats';
 import { SessionComplete } from '@/components/meditation/SessionComplete';
 import { useMeditationSession } from '@/hooks/useMeditationSession';
 import { useMoodRecords } from '@/hooks/useMoodRecords';
+import { useWallpaper } from '@/hooks/useWallpaper';
 import { getEmotionConfig } from '@/config/emotions';
 import { duration, easing } from '@/config/theme';
 
 export function MeditatePage() {
   const navigate = useNavigate();
+  const { wallpaper } = useWallpaper();
   const { timer, sound, stats, completion, controls } = useMeditationSession();
   const { latestTodayRecord: todayRecord } = useMoodRecords();
   const idle = timer.phase === 'idle';
@@ -30,8 +32,15 @@ export function MeditatePage() {
   }, [idle, todayRecord, sound]);
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center overflow-hidden bg-[#3A3530]">
-      <div className="absolute inset-0 bg-gradient-to-b from-[#3A3530] via-[#3A3530] to-[#2D2824]" />
+    <div className={`relative flex min-h-screen flex-col items-center overflow-hidden${wallpaper ? '' : ' bg-[#3A3530]'}`}>
+      <div
+        className="absolute inset-0"
+        style={
+          wallpaper
+            ? { background: 'rgba(20, 16, 12, 0.68)' }
+            : { background: 'linear-gradient(to bottom, #3A3530, #3A3530, #2D2824)' }
+        }
+      />
 
       {/* Header */}
       <header className="relative z-10 flex w-full max-w-[480px] items-center justify-between px-6 pt-8">

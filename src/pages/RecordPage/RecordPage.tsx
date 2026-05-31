@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { EmotionPicker } from '@/components/mood/EmotionPicker';
 import { MoodTextInput } from '@/components/mood/MoodTextInput';
 import { MoodSubmitBar } from '@/components/mood/MoodSubmitBar';
@@ -20,12 +20,13 @@ import type { MoodRecord } from '@/types/mood';
 export function RecordPage() {
   const navigate = useNavigate();
   const { notify } = useToast();
-  const { todayRecords } = useMoodRecords();
+  const { todayRecords, deleteRecord, removeImage } = useMoodRecords();
   const { submit, submitting } = useMoodSubmit();
   const { sessions: meditationSessions } = useMeditationRecords();
   const form = useMoodForm();
   const reduce = useReducedMotion();
   const [selectedRecord, setSelectedRecord] = useState<MoodRecord | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const getMeditationMinutes = (date: string) =>
     meditationSessions
@@ -155,25 +156,70 @@ export function RecordPage() {
           </h2>
           <div className="mt-4 flex flex-col gap-2">
             {[...todayRecords].reverse().map((r) => (
-              <button
-                key={r.id}
-                type="button"
-                onClick={() => setSelectedRecord(r)}
-                className="paper-card rounded-xl px-4 py-3 flex items-center gap-3 hover:shadow-md transition-shadow text-left w-full"
-              >
-                <span className="text-lg shrink-0">
-                  {r.emotions.map((e) => getEmotionConfig(e).emoji).join('')}
-                </span>
-                <div className="flex-1 min-w-0">
-                  {r.description ? (
-                    <p className="text-caption text-ink-700 line-clamp-1">{r.description}</p>
+              <div key={r.id} className="group paper-card rounded-xl overflow-hidden">
+                <AnimatePresence mode="wait" initial={false}>
+                  {confirmDeleteId !== r.id ? (
+                    <motion.div
+                      key="normal"
+                      className="flex items-center"
+                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                      transition={{ duration: 0.12 }}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setSelectedRecord(r)}
+                        className="flex flex-1 items-center gap-3 px-4 py-3 text-left hover:bg-bg-sunken/40 transition-colors"
+                      >
+                        <span className="text-lg shrink-0">
+                          {r.emotions.map((e) => getEmotionConfig(e).emoji).join('')}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          {r.description ? (
+                            <p className="text-caption text-ink-700 line-clamp-1">{r.description}</p>
+                          ) : (
+                            <p className="text-caption text-ink-400 italic">仅记录了情绪</p>
+                          )}
+                        </div>
+                        {r.image && <span className="text-sm shrink-0">📷</span>}
+                        <span className="text-micro text-ink-400 shrink-0">{formatTime(r.createdAt)}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setConfirmDeleteId(r.id)}
+                        aria-label="删除记录"
+                        className="px-3 py-3 text-ink-400 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-400"
+                      >
+                        ✕
+                      </button>
+                    </motion.div>
                   ) : (
-                    <p className="text-caption text-ink-400 italic">仅记录了情绪</p>
+                    <motion.div
+                      key="confirm"
+                      className="flex items-center justify-between px-4 py-3 bg-red-50/60"
+                      initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+                      transition={{ duration: 0.12 }}
+                    >
+                      <span className="text-caption text-ink-700">确认删除这条记录？</span>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => { deleteRecord(r.id); setConfirmDeleteId(null); }}
+                          className="rounded-xl bg-red-100 px-3 py-1 text-micro text-red-500 hover:bg-red-200 transition-colors"
+                        >
+                          删除
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setConfirmDeleteId(null)}
+                          className="rounded-xl bg-bg-sunken px-3 py-1 text-micro text-ink-600 hover:bg-line-soft transition-colors"
+                        >
+                          取消
+                        </button>
+                      </div>
+                    </motion.div>
                   )}
-                </div>
-                {r.image && <span className="text-sm shrink-0">📷</span>}
-                <span className="text-micro text-ink-400 shrink-0">{formatTime(r.createdAt)}</span>
-              </button>
+                </AnimatePresence>
+              </div>
             ))}
           </div>
         </motion.div>
@@ -183,6 +229,8 @@ export function RecordPage() {
         record={selectedRecord}
         meditationMinutes={selectedRecord ? getMeditationMinutes(selectedRecord.date) : 0}
         onClose={() => setSelectedRecord(null)}
+        onDelete={(id) => { deleteRecord(id); setSelectedRecord(null); }}
+        onRemoveImage={removeImage}
       />
 
       {/* Bottom spacer */}

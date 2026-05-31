@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { MoodRecord } from '@/types/mood';
 import { getEmotionConfig } from '@/config/emotions';
@@ -8,10 +9,30 @@ interface PhotoDetailModalProps {
   record: MoodRecord | null;
   meditationMinutes?: number;
   onClose: () => void;
+  onDelete?: (id: string) => void;
+  onRemoveImage?: (id: string) => void;
 }
 
-export function PhotoDetailModal({ record, meditationMinutes = 0, onClose }: PhotoDetailModalProps) {
+export function PhotoDetailModal({
+  record,
+  meditationMinutes = 0,
+  onClose,
+  onDelete,
+  onRemoveImage,
+}: PhotoDetailModalProps) {
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const cfg = record?.emotions[0] ? getEmotionConfig(record.emotions[0]) : null;
+
+  function handleClose() {
+    setConfirmDelete(false);
+    onClose();
+  }
+
+  function handleDelete() {
+    if (!record) return;
+    onDelete?.(record.id);
+    handleClose();
+  }
 
   return (
     <AnimatePresence>
@@ -22,7 +43,7 @@ export function PhotoDetailModal({ record, meditationMinutes = 0, onClose }: Pho
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          onClick={onClose}
+          onClick={handleClose}
         >
           <div className="absolute inset-0 bg-ink-900/20 backdrop-blur-sm" />
 
@@ -36,11 +57,22 @@ export function PhotoDetailModal({ record, meditationMinutes = 0, onClose }: Pho
           >
             {/* Image */}
             {record.image && (
-              <img
-                src={record.image}
-                alt=""
-                className="w-full max-h-64 object-cover rounded-t-3xl"
-              />
+              <div className="relative group">
+                <img
+                  src={record.image}
+                  alt=""
+                  className="w-full max-h-64 object-cover rounded-t-3xl"
+                />
+                {onRemoveImage && (
+                  <button
+                    type="button"
+                    onClick={() => onRemoveImage(record.id)}
+                    className="absolute top-3 right-3 rounded-xl bg-black/50 px-3 py-1.5 text-micro text-white/90 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                  >
+                    删除图片
+                  </button>
+                )}
+              </div>
             )}
 
             <div className="p-6 flex flex-col gap-4">
@@ -48,9 +80,7 @@ export function PhotoDetailModal({ record, meditationMinutes = 0, onClose }: Pho
                 <h2 className="font-display text-h2 text-ink-900">
                   {formatLongDate(record.date)}
                 </h2>
-                {cfg && (
-                  <span className="text-3xl">{cfg.emoji}</span>
-                )}
+                {cfg && <span className="text-3xl">{cfg.emoji}</span>}
               </div>
 
               {cfg && (
@@ -75,11 +105,57 @@ export function PhotoDetailModal({ record, meditationMinutes = 0, onClose }: Pho
               )}
 
               <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="w-full rounded-xl bg-bg-sunken py-3 text-caption text-ink-600 hover:bg-line-soft transition-colors"
               >
                 关闭
               </button>
+
+              {onDelete && (
+                <div className="border-t border-line-soft pt-2">
+                  <AnimatePresence mode="wait">
+                    {!confirmDelete ? (
+                      <motion.button
+                        key="trigger"
+                        type="button"
+                        onClick={() => setConfirmDelete(true)}
+                        className="w-full rounded-xl py-2 text-caption text-ink-400 hover:text-red-500 transition-colors"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                      >
+                        删除这条记录
+                      </motion.button>
+                    ) : (
+                      <motion.div
+                        key="confirm"
+                        className="flex items-center justify-center gap-3"
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                      >
+                        <span className="text-caption text-ink-600">确认删除？</span>
+                        <button
+                          type="button"
+                          onClick={handleDelete}
+                          className="rounded-xl bg-red-50 px-4 py-1.5 text-caption text-red-500 hover:bg-red-100 transition-colors"
+                        >
+                          确认删除
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setConfirmDelete(false)}
+                          className="rounded-xl bg-bg-sunken px-4 py-1.5 text-caption text-ink-600 hover:bg-line-soft transition-colors"
+                        >
+                          取消
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
             </div>
           </motion.div>
         </motion.div>

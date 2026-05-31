@@ -68,7 +68,8 @@ html[data-wallpaper] .bg-bg-base {
   -webkit-backdrop-filter: blur(6px);
 }
 html[data-wallpaper] .bg-paper-warm {
-  background-color: rgba(245, 240, 232, 0.5) !important;
+  background-image: none !important;
+  background-color: transparent !important;
 }
 html[data-wallpaper] .min-h-screen.bg-bg-base {
   background-color: rgba(245, 240, 232, 0.55) !important;

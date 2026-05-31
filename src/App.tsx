@@ -11,6 +11,8 @@ import { MeditatePage } from '@/pages/MeditatePage/MeditatePage';
 import { MoodJourneyPage } from '@/pages/MoodJourneyPage/MoodJourneyPage';
 import { MoodAlbumPage } from '@/pages/MoodAlbumPage/MoodAlbumPage';
 import { MonthlyReviewPage } from '@/pages/MonthlyReviewPage/MonthlyReviewPage';
+import { InsightPage } from '@/pages/InsightPage/InsightPage';
+import { GardenPreviewPage } from '@/pages/GardenPreviewPage/GardenPreviewPage';
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -25,6 +27,8 @@ function AnimatedRoutes() {
         <Route path="/journey" element={<PageTransition><MoodJourneyPage /></PageTransition>} />
         <Route path="/album" element={<PageTransition><MoodAlbumPage /></PageTransition>} />
         <Route path="/review" element={<PageTransition><MonthlyReviewPage /></PageTransition>} />
+        <Route path="/insight" element={<PageTransition><InsightPage /></PageTransition>} />
+        <Route path="/garden-preview" element={<PageTransition><GardenPreviewPage /></PageTransition>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AnimatePresence>

@@ -120,7 +120,7 @@ export function HomePage() {
         </motion.h1>
 
         <motion.p
-          className="font-display mt-2 italic text-body-lg text-ink-600"
+          className="font-display mt-2 italic text-body-lg text-ink-900"
           variants={fadeItem}
         >
           记录情绪，安放此刻
@@ -144,27 +144,21 @@ export function HomePage() {
           </motion.div>
         )}
 
-        <motion.div className="mt-8 flex items-center gap-6" variants={fadeItem}>
-          <button
-            onClick={() => navigate('/journey')}
-            className="text-caption text-ink-400 transition-colors hover:text-ink-600"
-          >
-            情绪轨迹
-          </button>
-          <span className="text-ink-200">·</span>
-          <button
-            onClick={() => navigate('/album')}
-            className="text-caption text-ink-400 transition-colors hover:text-ink-600"
-          >
-            回忆相册
-          </button>
-          <span className="text-ink-200">·</span>
-          <button
-            onClick={() => navigate('/timeline')}
-            className="text-caption text-ink-400 transition-colors hover:text-ink-600"
-          >
-            时间线
-          </button>
+        <motion.div className="mt-8 flex flex-wrap items-center justify-center gap-2" variants={fadeItem}>
+          {[
+            { label: '情绪轨迹', path: '/journey' },
+            { label: '回忆相册', path: '/album' },
+            { label: '时间线',   path: '/timeline' },
+            { label: 'AI 洞察',  path: '/insight' },
+          ].map(({ label, path }) => (
+            <button
+              key={path}
+              onClick={() => navigate(path)}
+              className="rounded-xl bg-white/70 backdrop-blur-sm border border-line-soft px-4 py-2 text-caption text-ink-600 hover:bg-white/90 hover:text-ink-900 transition-colors shadow-sm"
+            >
+              {label}
+            </button>
+          ))}
         </motion.div>
 
         <motion.p className="mt-14 text-micro text-ink-400/60" variants={fadeItem}>

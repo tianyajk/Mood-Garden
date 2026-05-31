@@ -14,7 +14,7 @@ import { duration, easing } from '@/config/theme';
 export function TimelinePage() {
   const navigate = useNavigate();
   const tl = useTimeline();
-  const { records } = useMoodRecords();
+  const { records, deleteRecord, removeImage } = useMoodRecords();
   const [active, setActive] = useState<MoodRecord | null>(null);
   const reduce = useReducedMotion();
 
@@ -77,7 +77,7 @@ export function TimelinePage() {
                   animate={reduce ? { opacity: 1 } : { opacity: 1, x: 0 }}
                   transition={{ duration: duration.slow, delay: i * 0.03 }}
                 >
-                  <TimelineItem record={record} onClick={setActive} />
+                  <TimelineItem record={record} onClick={setActive} onDelete={deleteRecord} />
                 </motion.div>
               ))}
             </div>
@@ -95,6 +95,8 @@ export function TimelinePage() {
       <RecordDetailModal
         record={active}
         onClose={() => setActive(null)}
+        onDelete={(id) => { deleteRecord(id); setActive(null); }}
+        onRemoveImage={removeImage}
       />
     </div>
   );

@@ -1,12 +1,14 @@
-import type { AiAnalysis, AiResult, CompanionQuote, EmotionIntensity } from '@/types/ai';
-import type { EmotionKey } from '@/types/mood';
+import type { AiAnalysis, AiInsight, AiResult, CompanionQuote, EmotionIntensity, InsightSuggestion, PeriodSummary } from '@/types/ai';
+import type { EmotionKey, MoodRecord } from '@/types/mood';
 import {
   ANALYSIS_SYSTEM_PROMPT,
   COMPANION_SYSTEM_PROMPT,
+  INSIGHT_SYSTEM_PROMPT,
   buildAnalysisPrompt,
   buildCompanionPrompt,
+  buildInsightSummary,
 } from './prompts';
-import { mockAnalyze, mockCompanion, mockRandomCompanion } from './mockAi';
+import { mockAnalyze, mockCompanion, mockInsight, mockRandomCompanion } from './mockAi';
 
 /**
  * 大模型请求封装（架构原则：所有 AI 调用走此处，可降级）。
@@ -88,6 +90,81 @@ export async function analyzeEmotion(
     return { data: parseAnalysis(text), source: 'api' };
   } catch {
     return { data: mockAnalyze(emotions, description), source: 'mock' };
+  }
+}
+
+/** 解析个人洞察 JSON，字段缺失时抛错由上层兜底 */
+function parseInsight(
+  raw: string,
+  recordCount: number,
+  weekCount: number,
+  monthCount: number,
+): AiInsight {
+  const cleaned = raw.replace(/```json|```/g, '').trim();
+  const parsed = JSON.parse(cleaned) as Partial<{
+    portrait: string;
+    weekSummary: string | null;
+    monthSummary: string | null;
+    patterns: string[];
+    suggestions: Array<{ title?: string; content?: string }>;
+    encouragement: string;
+  }>;
+
+  if (typeof parsed.portrait !== 'string') throw new Error('invalid portrait');
+  const patterns = Array.isArray(parsed.patterns)
+    ? parsed.patterns.filter((p): p is string => typeof p === 'string')
+    : [];
+  const suggestions: InsightSuggestion[] = Array.isArray(parsed.suggestions)
+    ? parsed.suggestions
+        .filter((s) => typeof s?.title === 'string' && typeof s?.content === 'string')
+        .map((s) => ({ title: s.title as string, content: s.content as string }))
+    : [];
+  if (patterns.length === 0 || suggestions.length === 0) throw new Error('invalid insight shape');
+
+  const toSummary = (text: string | null | undefined, count: number): PeriodSummary | null =>
+    typeof text === 'string' && count > 0 ? { recordCount: count, summary: text } : null;
+
+  return {
+    portrait: parsed.portrait,
+    week: toSummary(parsed.weekSummary, weekCount),
+    month: toSummary(parsed.monthSummary, monthCount),
+    patterns,
+    suggestions,
+    encouragement:
+      typeof parsed.encouragement === 'string'
+        ? parsed.encouragement
+        : '继续温柔地记录，花园会见证你的每一次成长。',
+    generatedAt: Date.now(),
+    recordCount,
+  };
+}
+
+/** 个人情绪洞察分析：失败自动降级 */
+export async function analyzePersonalInsight(
+  records: MoodRecord[],
+  meditationMinutes: number,
+  streakDays: number,
+): Promise<AiResult<AiInsight>> {
+  const today = new Date();
+  const weekCutoff = new Date(today); weekCutoff.setDate(today.getDate() - 7);
+  const monthCutoff = new Date(today); monthCutoff.setDate(today.getDate() - 30);
+  const weekStr = weekCutoff.toISOString().slice(0, 10);
+  const monthStr = monthCutoff.toISOString().slice(0, 10);
+  const weekCount = records.filter((r) => r.date >= weekStr).length;
+  const monthCount = records.filter((r) => r.date >= monthStr).length;
+
+  if (!isConfigured()) {
+    return { data: mockInsight(records, meditationMinutes), source: 'mock' };
+  }
+  try {
+    const summary = buildInsightSummary(records, meditationMinutes, streakDays);
+    const text = await chat([
+      { role: 'system', content: INSIGHT_SYSTEM_PROMPT },
+      { role: 'user', content: summary },
+    ]);
+    return { data: parseInsight(text, records.length, weekCount, monthCount), source: 'api' };
+  } catch {
+    return { data: mockInsight(records, meditationMinutes), source: 'mock' };
   }
 }
 
